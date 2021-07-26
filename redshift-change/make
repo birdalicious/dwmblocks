@@ -1,0 +1,7 @@
+#!/bin/sh
+USER_HOME=$(eval echo ~${SUDO_USER})
+cp redshift-change /usr/local/bin/
+echo 25000 > $USER_HOME/.local/redshift-temp
+echo 0 >> $USER_HOME/.local/redshift-temp
+chmod 777 $USER_HOME/.local/redshift-temp
+sed -i "1s/^/sed -i '\$s\/1\/0\/' .local\/redshift-temp\n/" $USER_HOME/.xinitrc

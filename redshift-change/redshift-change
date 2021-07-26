@@ -1,0 +1,57 @@
+#!/bin/sh
+
+temp="$(head -n 1 ~/.local/redshift-temp)"
+enabled="$(tail -n 1 ~/.local/redshift-temp)"
+
+if [ "$1" = "--temp" ] ; then
+	if [[ $enabled -eq 1 && $temp -lt "1000" ]] ; then
+		echo "1000K"
+	elif [[ $enabled -eq 1 && $temp -le "25000" ]] ; then
+		echo "$temp"K
+	fi
+	exit 0
+fi
+
+if [ "$1" = "--toggle" ] ; then
+	if [ $enabled -eq 0 ] ; then
+		redshift -P -O $temp
+		echo $temp > ~/.local/redshift-temp
+		echo 1 >> ~/.local/redshift-temp
+	else
+		redshift -P -x
+		echo $temp > ~/.local/redshift-temp
+		echo 0 >> ~/.local/redshift-temp
+	fi
+	pkill -RTMIN+1 dwmblocks
+	exit 0
+fi
+
+
+# Check $1 arg is a signed number
+re='^[+-]?[0-9]+([.][0-9]+)?$'
+if ! [[ $1 =~ $re ]] ; then
+	echo "error: Not a number" >&2; exit 1
+fi
+
+let newtemp=$temp+$1
+
+
+if [[ ($temp -gt "25000" && $newtemp -gt "25000") || $newtemp -lt "1000" ]] ; then
+	echo $temp > ~/.local/redshift-temp
+	echo 1 >> ~/.local/redshift-temp
+else
+	echo $newtemp > ~/.local/redshift-temp
+	echo 1 >> ~/.local/redshift-temp
+fi
+
+if [[ $newtemp -gt "25000" ]] ; then
+	redshift -P -x
+	echo ""
+elif [[ $newtemp -lt "1000" ]] ; then
+	echo "" 
+else
+	redshift -P -O $newtemp
+	echo "$newtemp"K
+fi
+
+pkill -RTMIN+1 dwmblocks
