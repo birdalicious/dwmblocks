@@ -1,7 +1,9 @@
 #!/bin/sh
 
-temp="$(head -n 1 ~/.local/redshift-temp)"
-enabled="$(tail -n 1 ~/.local/redshift-temp)"
+LOCAL=~/.local/redshift-temp
+
+temp="$(head -n 1 $LOCAL)"
+enabled="$(tail -n 1 $LOCAL)"
 
 if [ "$1" = "--temp" ] ; then
 	if [[ $enabled -eq 1 && $temp -lt "1000" ]] ; then
@@ -15,13 +17,20 @@ fi
 if [ "$1" = "--toggle" ] ; then
 	if [ $enabled -eq 0 ] ; then
 		redshift -P -O $temp
-		echo $temp > ~/.local/redshift-temp
-		echo 1 >> ~/.local/redshift-temp
+		echo $temp > $LOCAL
+		echo 1 >> $LOCAL
 	else
 		redshift -P -x
-		echo $temp > ~/.local/redshift-temp
-		echo 0 >> ~/.local/redshift-temp
+		echo $temp > $LOCAL
+		echo 0 >> $LOCAL
 	fi
+	pkill -RTMIN+1 dwmblocks
+	exit 0
+fi
+
+if [ "$1" = "--disable" ] ; then
+	redshift -P -x
+	sed -i '2s/1/0/' $LOCAL
 	pkill -RTMIN+1 dwmblocks
 	exit 0
 fi
@@ -37,11 +46,11 @@ let newtemp=$temp+$1
 
 
 if [[ ($temp -gt "25000" && $newtemp -gt "25000") || $newtemp -lt "1000" ]] ; then
-	echo $temp > ~/.local/redshift-temp
-	echo 1 >> ~/.local/redshift-temp
+	echo $temp > $LOCAL
+	echo 1 >> $LOCAL
 else
-	echo $newtemp > ~/.local/redshift-temp
-	echo 1 >> ~/.local/redshift-temp
+	echo $newtemp > $LOCAL
+	echo 1 >> $LOCAL
 fi
 
 if [[ $newtemp -gt "25000" ]] ; then

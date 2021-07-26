@@ -3,4 +3,4 @@ USER_HOME=$(eval echo ~${SUDO_USER})
 
 rm /usr/local/bin/redshift-change
 rm $USER_HOME/.local/redshift-temp
-sed -i "/sed -i '\$s\/1\/0\/' .local\/redshift-temp/d" $USER_HOME/.xinitrc
+sed -i "/redshift-change --disable/d" $USER_HOME/.xinitrc
